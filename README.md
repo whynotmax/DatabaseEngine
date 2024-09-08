@@ -15,6 +15,8 @@ DatabaseEngine is a Java-based project that provides a simple and flexible way t
 - Java 21
 - Gradle
 - MongoDB (for MongoDB database functionality)
+- MySQL (for MySQL database functionality)
+- Gson (for JSON database functionality)
 
 ### Installation
 
