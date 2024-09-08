@@ -1,0 +1,148 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version "${shadowVersion}"
+    id 'net.kyori.blossom' version "${blossomVersion}"
+    id "maven-publish"
+    id "signing"
+}
+
+compileJava {
+    version = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
+}
+
+mainClassName = 'dev.mzcy.DatabaseEngine'
+
+group = 'dev.mzcy'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        // Minestom
+        url 'https://jitpack.io'
+    }
+    maven {
+        // Dependencies
+        url 'https://repo.spongepowered.org/maven'
+    }
+}
+
+dependencies {
+    // Annotations
+    implementation "org.jetbrains:annotations:${annotationsVersion}"
+    annotationProcessor "org.jetbrains:annotations:${annotationsVersion}"
+
+    implementation "org.projectlombok:lombok:1.18.34"
+    annotationProcessor "org.projectlombok:lombok:1.18.34"
+
+    // Database
+    implementation "eu.koboo:en2do:${en2doVersion}"
+    implementation 'com.mysql:mysql-connector-j:9.0.0'
+    implementation 'org.xerial:sqlite-jdbc:3.46.1.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+}
+
+tasks.register('cleanProject', Delete) {
+    delete file('logs/')
+    delete file('extensions/')
+    delete file('configs/')
+    delete rootProject.buildDir
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+shadowJar {
+    manifest {
+        attributes(
+                'Main-Class': mainClassName,
+                'Implementation-Title': rootProject.name,
+                'Implementation-Version': rootProject.version,
+                'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Created-By': "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
+    }
+}
+
+blossom {
+    replaceToken 'PROJECT_NAME', rootProject.name
+    replaceToken 'PROJECT_VERSION', rootProject.version
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+publishing {
+    repositories {
+        maven {
+            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
+            name = "OSSRH"
+            url = isReleaseVersion ? releaseRepo : snapshotRepo
+
+            credentials {
+                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                groupId = 'dev.mzcy'
+                name = 'database-engine'
+                description = 'A simple database engine for Java applications.'
+                url = 'https://github.com/whynotmax/DatabaseEngine'
+                packaging = 'jar'
+
+                // Your choosen license
+                // Use https://choosealicense.com/ to decide, if you need help.
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/license/MIT'
+                    }
+                }
+
+                scm {
+                    url = 'https://github.com/whynotmax/DatabaseEngine'
+                    connection = 'scm:git://github.com:whynotmax/DatabaseEngine.git'
+                    developerConnection = 'scm:git://github.com:whynotmax/DatabaseEngine.git'
+                }
+
+                developers {
+                    developer {
+                        id = 'mzcy'
+                        name = 'Max M.'
+                        email = 'max@keinesecrets.de'
+                        organizationUrl = 'https://keinesecrets.de/'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
+}
