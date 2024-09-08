@@ -6,7 +6,8 @@ DatabaseEngine is a Java-based project that provides a simple and flexible way t
 
 - **JSON Database**: Store and retrieve data in JSON format.
 - **MongoDB Database**: Store and retrieve data using MongoDB.
-- **Utility Methods**: Print all entities in the databases.
+- **MySQL Database**: Store and retrieve data using MySQL.
+- **SQLite Database**: Store and retrieve data using SQLite.
 
 ## Getting Started
 
