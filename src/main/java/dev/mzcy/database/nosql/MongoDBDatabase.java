@@ -3,6 +3,7 @@ package dev.mzcy.database.nosql;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import dev.mzcy.database.Database;
+import dev.mzcy.database.credentials.DatabaseCredentials;
 import dev.mzcy.database.nosql.annotation.PrimaryKey;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -27,13 +28,13 @@ public class MongoDBDatabase<E> implements Database<E> {
     /**
      * Constructs a MongoDBDatabase instance.
      *
-     * @param connectionString the MongoDB connection string
+     * @param databaseCredentials the credentials for the database
      * @param databaseName the name of the database
      * @param collectionName the name of the collection
      * @param entityClass the class of the entity
      */
-    public MongoDBDatabase(String connectionString, String databaseName, String collectionName, Class<E> entityClass) {
-        this.mongoClient = MongoClients.create(connectionString);
+    public MongoDBDatabase(DatabaseCredentials databaseCredentials, String databaseName, String collectionName, Class<E> entityClass) {
+        this.mongoClient = MongoClients.create(databaseCredentials.getConnectionUrl());
         this.database = mongoClient.getDatabase(databaseName);
         this.collection = database.getCollection(collectionName);
         this.entityClass = entityClass;

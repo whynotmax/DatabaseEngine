@@ -65,8 +65,8 @@ public class DatabaseCredentials {
      * @param connectionUrl Connection URL
      * @return              Database credentials
      */
-    public static DatabaseCredentials createMySQLDatabase(String connectionUrl) {
-        return new DatabaseCredentials(null, 0, null, null, null, connectionUrl);
+    public static DatabaseCredentials createMongoDatabase(String connectionUrl, String database) {
+        return new DatabaseCredentials(null, 0, database, null, null, connectionUrl);
     }
 
     /**

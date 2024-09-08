@@ -4,8 +4,6 @@ plugins {
     id 'application'
     id 'com.github.johnrengelman.shadow' version "${shadowVersion}"
     id 'net.kyori.blossom' version "${blossomVersion}"
-    id "maven-publish"
-    id "signing"
 }
 
 compileJava {
@@ -17,7 +15,7 @@ compileJava {
 mainClassName = 'dev.mzcy.DatabaseEngine'
 
 group = 'dev.mzcy'
-version = '1.0-SNAPSHOT'
+version = '1.0 '
 
 repositories {
     mavenCentral()
@@ -80,69 +78,4 @@ blossom {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-}
-
-isReleaseVersion = !version.endsWith("SNAPSHOT")
-
-publishing {
-    repositories {
-        maven {
-            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-
-            name = "OSSRH"
-            url = isReleaseVersion ? releaseRepo : snapshotRepo
-
-            credentials {
-                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
-                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
-            }
-        }
-    }
-
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            pom {
-                groupId = 'dev.mzcy'
-                name = 'database-engine'
-                description = 'A simple database engine for Java applications.'
-                url = 'https://github.com/whynotmax/DatabaseEngine'
-                packaging = 'jar'
-
-                // Your choosen license
-                // Use https://choosealicense.com/ to decide, if you need help.
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/license/MIT'
-                    }
-                }
-
-                scm {
-                    url = 'https://github.com/whynotmax/DatabaseEngine'
-                    connection = 'scm:git://github.com:whynotmax/DatabaseEngine.git'
-                    developerConnection = 'scm:git://github.com:whynotmax/DatabaseEngine.git'
-                }
-
-                developers {
-                    developer {
-                        id = 'mzcy'
-                        name = 'Max M.'
-                        email = 'max@keinesecrets.de'
-                        organizationUrl = 'https://keinesecrets.de/'
-                    }
-                }
-            }
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
-tasks.withType(Sign) {
-    onlyIf { isReleaseVersion }
 }
